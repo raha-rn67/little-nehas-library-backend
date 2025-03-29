@@ -21,6 +21,7 @@ app.use(express.json());
 
 // ✅ Session Middleware (Fix for GitHub Pages)
 const MongoStore = require("connect-mongo");
+app.set("trust proxy", 1); // ✅ Required for sessions to work with proxies (Render)
 
 app.use(
   session({
