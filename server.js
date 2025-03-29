@@ -22,7 +22,11 @@ app.use(express.json());
 // ✅ Session Middleware (Fix for GitHub Pages)
 const MongoStore = require("connect-mongo");
 app.set("trust proxy", 1); // ✅ Required for sessions to work with proxies (Render)
-
+// ✅ Create session store
+const sessionStore = MongoStore.create({
+  mongoUrl: process.env.MONGO_URI,  // Ensure MONGO_URI is set in .env
+  collectionName: "sessions",       // Optional: Name of the collection in MongoDB
+});
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "supersecretkey",
@@ -37,7 +41,6 @@ app.use(
     },
   })
 );
-
 
 
 // ✅ Authentication Routes
