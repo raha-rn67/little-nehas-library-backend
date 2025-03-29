@@ -56,26 +56,31 @@ app.post("/api/verify-password", (req, res) => {
 
   if (password === correctPassword) {
     req.session.isAuthenticated = true;
+    
     req.session.save((err) => {
       if (err) {
         console.error("Session save error:", err);
         return res.status(500).json({ success: false, message: "Session save failed" });
       }
 
-      res.cookie("connect.sid", req.session.id, { 
-        maxAge: 24 * 60 * 60 * 1000, // ✅ Set expiration (1 day)
-        secure: true, // ✅ Required for cross-origin cookies
+      // ✅ Set the session cookie explicitly
+      res.cookie("connect.sid", req.session.id, {
+        maxAge: 24 * 60 * 60 * 1000, // 1 day
+        secure: process.env.NODE_ENV === "production", // ✅ Secure only in production
         httpOnly: true,
-        sameSite: "None"
-      }); // ✅ Explicitly set session cookie
-     
+        sameSite: "None",
+        domain: process.env.COOKIE_DOMAIN || undefined, // ✅ Optional, for custom domains
+      });
+
       console.log("Session after authentication:", req.session);
       res.json({ success: true, message: "Authentication successful" });
     });
+
   } else {
     res.status(401).json({ success: false, message: "Incorrect password" });
   }
 });
+
 
 
 app.post("/api/logout", (req, res) => {
