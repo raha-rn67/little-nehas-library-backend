@@ -11,28 +11,32 @@ const PORT = process.env.PORT || 5000;
 // ✅ CORS Setup (Allow GitHub Pages)
 app.use(
   cors({
-    origin: 'https://raha-rn67.github.io',
-    credentials: true, // Allow cookies/session sharing
+    origin: ["https://raha-rn67.github.io", "https://raha-rn67.github.io/little-nehas-library-frontend"],
+    credentials: true,
   })
 );
 app.use(express.json());
 
 // ✅ Session Middleware (Fix for GitHub Pages)
+const MongoStore = require("connect-mongo");
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "supersecretkey",
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }), // ✅ Store in MongoDB
     cookie: {
-      secure: true, // Ensure HTTPS is used
+      secure: true,
       httpOnly: true,
-      sameSite: "None", // Required for cross-origin authentication
+      sameSite: "None",
     },
   })
 );
 
 // ✅ Authentication Routes
 app.get("/api/check-auth", (req, res) => {
+  console.log("Session Data:", req.session);  // 🔍 Debugging
   res.json({ isAuthenticated: req.session.isAuthenticated || false });
 });
 
