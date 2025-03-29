@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 5000;
 // ✅ CORS Setup (Allow GitHub Pages)
 app.use(
   cors({
-    origin: "https://raha-rn67.github.io/little-nehas-library-frontend",
+    origin: 'https://raha-rn67.github.io',
     credentials: true, // Allow cookies/session sharing
   })
 );
