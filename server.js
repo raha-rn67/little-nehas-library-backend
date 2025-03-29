@@ -28,14 +28,16 @@ app.use(
     secret: process.env.SESSION_SECRET || "supersecretkey",
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }), // ✅ Store in MongoDB
+    store: sessionStore,
     cookie: {
-      secure: true, // Ensure HTTPS is used
+      maxAge: 24 * 60 * 60 * 1000, // ✅ Set cookie expiration (1 day)
+      secure: true,
       httpOnly: true,
-      sameSite: "None", // Required for cross-origin authentication
+      sameSite: "None",
     },
   })
 );
+
 
 
 // ✅ Authentication Routes
@@ -51,11 +53,27 @@ app.post("/api/verify-password", (req, res) => {
 
   if (password === correctPassword) {
     req.session.isAuthenticated = true;
-    res.json({ success: true, message: "Authentication successful" });
+    req.session.save((err) => {
+      if (err) {
+        console.error("Session save error:", err);
+        return res.status(500).json({ success: false, message: "Session save failed" });
+      }
+
+      res.cookie("connect.sid", req.session.id, { 
+        maxAge: 24 * 60 * 60 * 1000, // ✅ Set expiration (1 day)
+        secure: true, // ✅ Required for cross-origin cookies
+        httpOnly: true,
+        sameSite: "None"
+      }); // ✅ Explicitly set session cookie
+     
+      console.log("Session after authentication:", req.session);
+      res.json({ success: true, message: "Authentication successful" });
+    });
   } else {
     res.status(401).json({ success: false, message: "Incorrect password" });
   }
 });
+
 
 app.post("/api/logout", (req, res) => {
   req.session.destroy((err) => {
