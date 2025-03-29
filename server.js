@@ -5,16 +5,18 @@ const cors = require("cors");
 const session = require("express-session");
 const bookRoutes = require("./routes/bookRoutes");
 
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // ✅ CORS Setup (Allow GitHub Pages)
 app.use(
   cors({
-    origin: ["https://raha-rn67.github.io", "https://raha-rn67.github.io/little-nehas-library-frontend"],
+    origin: "https://raha-rn67.github.io",
     credentials: true,
   })
 );
+
 app.use(express.json());
 
 // ✅ Session Middleware (Fix for GitHub Pages)
@@ -27,18 +29,20 @@ app.use(
     saveUninitialized: false,
     store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }), // ✅ Store in MongoDB
     cookie: {
-      secure: true,
+      secure: true, // Ensure HTTPS is used
       httpOnly: true,
-      sameSite: "None",
+      sameSite: "None", // Required for cross-origin authentication
     },
   })
 );
 
+
 // ✅ Authentication Routes
 app.get("/api/check-auth", (req, res) => {
-  console.log("Session Data:", req.session);  // 🔍 Debugging
+  console.log("Session Data:", req.session);  // ✅ Debugging line
   res.json({ isAuthenticated: req.session.isAuthenticated || false });
 });
+
 
 app.post("/api/verify-password", (req, res) => {
   const { password } = req.body;
