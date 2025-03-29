@@ -12,7 +12,7 @@ const bookSchema = new mongoose.Schema({
   },
   description: {
     type: String,
-  }
+  },
 });
 
 const Book = mongoose.model("Book", bookSchema);

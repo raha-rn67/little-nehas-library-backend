@@ -3,7 +3,7 @@ const Book = require("../models/Book");
 
 const router = express.Router();
 
-// Get all books
+// ✅ Get all books
 router.get("/", async (req, res) => {
   try {
     const books = await Book.find();
@@ -13,17 +13,16 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Create a new book
+// ✅ Create a new book
 router.post("/", async (req, res) => {
   try {
     const { serialNumber, bookName, description } = req.body;
 
-    // Ensure all fields are provided
     if (!serialNumber || !bookName) {
       return res.status(400).json({ error: "Serial number and book name are required" });
     }
 
-    // Check if a book with the same serial number exists
+    // Check for unique serial number
     const existingBook = await Book.findOne({ serialNumber });
     if (existingBook) {
       return res.status(400).json({ error: "Serial number must be unique" });
@@ -38,12 +37,12 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Update a book
+// ✅ Update a book
 router.put("/:id", async (req, res) => {
   try {
     const { serialNumber, bookName, description } = req.body;
 
-    // Check if serial number is unique (excluding current book)
+    // Ensure serial number is unique
     const existingBook = await Book.findOne({ serialNumber, _id: { $ne: req.params.id } });
     if (existingBook) {
       return res.status(400).json({ error: "Serial number must be unique" });
@@ -61,7 +60,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// Delete a book
+// ✅ Delete a book
 router.delete("/:id", async (req, res) => {
   try {
     await Book.findByIdAndDelete(req.params.id);
